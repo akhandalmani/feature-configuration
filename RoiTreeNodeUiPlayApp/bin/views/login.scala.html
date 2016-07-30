@@ -1,0 +1,96 @@
+@(message:String)
+<html ng-app="myApp">
+<head>
+<title>Tree Node</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script type="text/javascript">
+	function preventBack() {
+		window.history.forward();
+	}
+	setTimeout("preventBack()", 0);
+	window.onunload = function() {
+		null
+	};
+</script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+
+<link rel="stylesheet"
+	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script
+	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans"
+	rel='stylesheet' type='text/css'>
+<script
+	src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.14.3.js"></script>
+<script
+	src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.2/angular.js"></script>
+<link rel="stylesheet"
+	href="https://cdn.rawgit.com/esvit/ng-table/v1.0.0/dist/ng-table.min.css">
+<script
+	src="https://cdn.rawgit.com/esvit/ng-table/v1.0.0/dist/ng-table.js"></script>
+
+<!-- <script
+	src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.0.6/angular.js"></script> -->
+<!-- <script type="text/javascript"
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>  -->
+<!-- <script type="text/javascript"
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script> -->
+<!-- <script src="@routes.Assets.at("_resources/ui-bootstrap-tpls.min.js")"></script> -->
+<script src="@routes.Assets.at("javascripts/xml2json.js")"></script>
+<script src="@routes.Assets.at("javascripts/xml2json.min.js")"></script>
+<link href="@routes.Assets.at("stylesheets/animate.css")" rel="stylesheet">
+<link href="@routes.Assets.at("stylesheets/angular.treeview.css")" rel="stylesheet">
+<link href="@routes.Assets.at("stylesheets/login.css")" rel="stylesheet">
+<script>
+	var app = angular.module('myApp', []);
+	//Controller: myController
+	app.controller('myController', function($scope, $http) {
+		$scope.login = function(username, password) {
+			alert("click 'ok' to procceed");
+		}
+	});
+</script>
+
+</head>
+<body>
+	<div id="mydashdiv" align="center">
+
+		<div ng-controller="myController" ng-init="data= 'true'"
+			style="overflow: auto;">
+
+			<div class="header">
+				<div class="left">
+					<ul class="menu">
+						<li><img src="http://www.getusroi.com/images/getusROI_04.jpg"
+							class="logoimg"></li>
+						<li><a href="#" class="logo">GetUs ROI LLC</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="body" style="height: 90%; width: 20%; overflow-x: auto;">
+
+				<form name="signupForm" action="login" method="post">
+					<div>
+						<label> Username </label><input name="tenantid" class="form-control" type="text"
+							id="tenantid" placeholder="Username" ng-model="tenantid" required>
+					</div>
+					<div>
+					<label>	Password </label> <input name="password" class="form-control"
+							id="password" placeholder="Password" ng-model="password" required
+							type="password">
+					</div>
+					<button type="submit" class="btn btn-primary">login</button>
+					
+				</form>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

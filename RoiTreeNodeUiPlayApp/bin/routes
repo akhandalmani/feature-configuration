@@ -1,0 +1,77 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Login Page
+GET		/								controllers.TenantController.loginPage()
+POST 	/login							controllers.TenantController.login()
+GET		/getTreeNodesSpecificToTenant	controllers.TenantController.getTreeNodesSpecificToTenant()
+GET     /getLoginPageByTenantid         controllers.TenantController.getLoginPageByTenantid() 
+
+# Home page
+GET     /home                           controllers.Application.index()
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
+
+
+#Tree node Urls 
+
+#GET   	 	/getTreeNodes             					controllers.Application.getTreeNodes()  
+GET 		/home						 				controllers.Application.home()  
+POST    	/addTenantNode             					controllers.Application.addTenantNode()  
+GET    		/editNode             						controllers.Application.getDataToEdit()  
+GET    		/deleteNode  								controllers.Application.deleteNode()  
+POST  		/updateNode									controllers.Application.updateNodeByNodeId()
+GET         /homerender            						controllers.Application.homerender()
+
+# Policy Config route
+
+GET 		/policyconfigdata/:nodeId					controllers.PolicyConfigController.getPolicyConfigData(nodeId:Integer)
+POST 		/changeStatusOfPolicyConfig					controllers.PolicyConfigController.changeStatusOfPolicyConfig()
+	
+
+
+#permastore config routes
+
+GET   	/getPermaStoreConfig/:nodeId    				controllers.PermaStoreConfigController.getPermaStoreData(nodeId:Integer)
+POST 	/addPermastoreConfigData      					controllers.PermaStoreConfigController.addPermastoreConfigData()
+POST 	/changeStatusOfPermaStore      					controllers.PermaStoreConfigController.changeStatusOfPermaStore()
+POST	/updatePermastoreConfigdata 					controllers.PermaStoreConfigController.updatePermastoreConfigdata()
+POST    /deletePermaStore								controllers.PermaStoreConfigController.deleteNodeByNodeIdPermastore()
+
+#dynastoreconfig route
+
+GET 	 /getDynaConfig/:nodeId																	controllers.DynaStoreConfigController.getDynaStoreCoguration(nodeId:Integer)
+GET     /changeStatusOfDynaStore/:nodeId/:nodeName/:dynaStoreName/:isEnable/:version			controllers.DynaStoreConfigController.changeStatusOfDynaStoreConfig(nodeId:Integer,nodeName:String,dynaStoreName:String,isEnable:Boolean,version:String)
+GET 	/deletDynaStore/:nodeId/:nodeName/:dynaStoreName 										controllers.DynaStoreConfigController.deleteDynaStoreConfig(nodeId:Integer,nodeName:String,dynaStoreName:String)
+
+
+#featureconfig routes
+
+#GET    /getFeatureConfig/:nodeId/:featureName   	 											controllers.FeatureConfigController.getFeatureConfigData(nodeId:String,featureName:String) 
+POST  	/changStatus									 		 								controllers.FeatureConfigController.changeStatusFeature()
+GET    	/getFeature/:nodeId     																controllers.FeatureConfigController.getFeatureConfigDataByNodeIdAndType(nodeId:String) 
+	
+
+
+#dynastorelog routes 
+
+GET    /getDynastoreLogData/:nodeId/:status/:history     										controllers.DynaStoreLogController.getDynaStoreLogBySiteId(nodeId:Integer, status:String,history:String) 
+
+
+
+#eventConfig routes 
+
+GET    /getEventConfig/:nodeId/:type     														controllers.EventConfigController.getEventConfig(nodeId:Integer,type:String) 
+GET    /changeStatusOfEvent/:nodeId/:nodeName/:eventName/:isEnable/:eventType      				controllers.EventConfigController.changeStatusOfEventFramework(nodeId:Integer,nodeName:String,eventName:String,isEnable:Boolean,eventType:String) 
+GET 	/deletEvent/:nodeId/:nodeName/:eventName/:eventType 	     							controllers.EventConfigController.deleteEventFrameworkConfiguration(nodeId:Integer,nodeName:String,eventName:String,eventType:String) 
+
+#datacontext routes
+
+GET     /getDataContextData/:nodeId                                                                                  controllers.DataContextConfigcontroller.getDataContextConfiguration(nodeId:Integer)
+
+#logout route
+GET		/logout																					controllers.TenantController.logout()

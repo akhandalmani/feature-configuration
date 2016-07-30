@@ -1,0 +1,53 @@
+@(message: String)
+
+
+<html>
+<head>
+<title>WareHouse</title>
+        <script src="@routes.Assets.at("javascripts/angular-1.0.0rc8.js")" type="text/javascript"></script>
+<style type="text/css">
+
+ul {
+    list-style: circle;
+}
+li {
+    margin-left: 20px;
+}
+
+</style>
+</head>
+
+
+<body  >
+  
+
+    {{data.name}}
+    <button ng-click="add(data)">Add node</button>
+    <button ng-click="delete(data)" ng-show="data.nodes.length > 0">Delete nodes</button>
+    <ul>
+        <li ng-repeat="data in data.nodes" ng-include="'tree_item_renderer.html'"></li>
+    </ul>
+
+<ul ng-app="Application" ng-controller="TreeController">
+    <li ng-repeat="data in tree" ng-include="'tree_item_renderer.html'"></li>
+</ul>
+
+</body>
+<script type="text/javascript">
+
+angular.module("myApp", []).
+controller("TreeController", ['$scope', function($scope) {
+    $scope.delete = function(data) {
+        data.nodes = [];
+    };
+    $scope.add = function(data) {
+        var post = data.nodes.length + 1;
+        var newName = data.name + '-' + post;
+        data.nodes.push({name: newName,nodes: []});
+    };
+    $scope.tree = [{name: "Node", nodes: []}];
+}]);
+</script>
+
+
+</html>

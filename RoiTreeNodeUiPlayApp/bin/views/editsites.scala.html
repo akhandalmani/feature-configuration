@@ -1,0 +1,149 @@
+@(error:String,nodeName:String,nodeId:Integer,parentId:Integer,nodeType:String)
+<html ng-app="myApp">
+
+<head>
+
+<title>Tree Node</title>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans"
+	rel='stylesheet' type='text/css'>
+<script type="text/javascript"
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+<script type="text/javascript"
+	src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<link
+	href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script
+	src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<link href="@routes.Assets.at("stylesheets/angular.treeview.css")" rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdn.rawgit.com/esvit/ng-table/v1.0.0/dist/ng-table.min.css">
+<script
+	src="https://cdn.rawgit.com/esvit/ng-table/v1.0.0/dist/ng-table.js"></script>
+
+
+<script>
+	(function() {
+
+		//angular module
+		var myApp = angular.module('myApp', [ 'angularTreeview' ]);
+	
+		//test controller
+		myApp.controller('myController', function($scope, $http) {
+
+			$http.get('getTreeNodes').success(function(response) {
+				//$scope.roleList = response
+
+				$scope.roleList = response;
+			});
+
+		});
+
+	})();
+</script>
+<style type="text/css">
+.divconfig {
+	height: 96%;
+	width: 96%;
+	overflow-x: scroll;
+	overflow-y: scroll;
+	padding-bottom: 10px;
+	border: 3px solid black;
+	"
+}
+</style>
+
+</head>
+<body>
+	<div  ng-app="myApp">
+		<div ng-controller="myController" >
+
+			<div class="header">
+				<div class="left">
+					<ul class="menu">
+						<li><a href="#" class="logo">R O I</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="body" style="width: 100%; overflow: auto">
+				<div class="sidemenu"
+					style="height: 90%; width: 20%; overflow: auto;"
+					data-angular-treeview="true" data-tree-id="tree"
+					data-tree-model="roleList" data-node-id="nodeId"
+					data-node-label="nodeName" data-node-children="children"></div>
+				<div class="pagecontent"
+					style="height: 87%; width: 75%; overflow: auto;">
+					<ul class="nav nav-tabs">
+						<li class="active"><a href="#">Node</a></li>
+						<li><a href="#">PolicyGroup</a></li>
+
+					</ul>
+					<div
+						style="margin: 10px 0 30px 0; padding: 10px; background-color: #EEEEEE; border-radius: 5px; font: 12px Tahoma;">
+						<span><b>Selected Node ID</b> : {{tree.currentNode.nodeId}}</span>
+						<span><b>Selected Node Name</b> :
+							{{tree.currentNode.nodeName}}</span> <span><b>Selected Node
+								Type</b> : {{tree.currentNode.type}}</span> <span>{{tree.length}}</span>
+
+
+					</div>
+
+					<div>
+
+
+						<form action="updateNode" method="post">
+						<div>
+						<div class="form-group" style="width: 50%; ">
+											<label for="pwd"><font size="2">Node Name</font> <span
+												style="color: red; font-size: 3">*</span> </label> <input type="text" name="nodename" style="height: 6%"	 value="@nodeName"
+							required> 
+
+										</div>
+						<div class="form-group" style="width: 50%; ">
+											<label for="pwd"><font size="2">	Node ID</font> <span
+												style="color: red; font-size: 3">*</span> </label>	<input  stytype="text" name="nodeid"
+								value="@nodeId" style="height: 6%" readonly="readonly"> 
+								
+
+										</div>
+										
+										</div>
+					
+								<input type="hidden" name="parentId" value="@parentId">
+							
+							<input type="hidden" name="nodeType" value="@nodeType">
+							
+								<input
+								type="submit" class="btn btn-primary" value="Update"> <a
+								style="padding-left: 4%; font-size: 20; color: black"
+								href="/home"> <label style="width: 100px"
+								class="btn btn-primary">Cancel </label>
+							</a>
+						</form>
+						<div><font style="color: red">@error</font> </div>
+
+					</div>
+
+
+
+
+
+
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+
+
+	<script src="@routes.Assets.at("javascripts/angular.treeview.js")"></script>
+	<!-- <script src="@routes.Assets.at("javascripts/angular.treeview.min.js")"></script> -->
+
+</body>
+</html>

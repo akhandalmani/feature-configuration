@@ -1,0 +1,26 @@
+nav li:hover {
+    background: #EEEEEE;
+}
+nav li>ul {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
+nav .collapsable li>ul {
+    display: none;
+}
+nav li>ul::before {
+    content: ": { ";
+}
+nav li>ul::after {
+    content: " } ";
+}
+nav li:hover>ul {
+    display: inline-block;
+}
+nav li>ul>li {
+    display: inline-block;
+}
+nav li>ul>li+li::before {
+    content: ", ";
+}

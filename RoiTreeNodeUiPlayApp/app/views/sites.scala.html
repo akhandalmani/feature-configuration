@@ -1,0 +1,2313 @@
+@(treeData:String)
+<html ng-app="myApp">
+
+<head>
+
+<title>Tree Node</title>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+
+<link rel="stylesheet"
+	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script
+	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans"
+	rel='stylesheet' type='text/css'>
+<script
+	src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.14.3.js"></script>
+<script
+	src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.2/angular.js"></script>
+<link rel="stylesheet"
+	href="https://cdn.rawgit.com/esvit/ng-table/v1.0.0/dist/ng-table.min.css">
+<script
+	src="https://cdn.rawgit.com/esvit/ng-table/v1.0.0/dist/ng-table.js"></script>
+
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.0.6/angular.js"></script>
+<!-- <script type="text/javascript"
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>  -->
+<!-- <script type="text/javascript"
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script> -->
+<script src="@routes.Assets.at("_resources/ui-bootstrap-tpls.min.js")"></script>
+<script src="@routes.Assets.at("javascripts/xml2json.js")"></script>
+<script src="@routes.Assets.at("javascripts/xml2json.min.js")"></script>
+<link href="@routes.Assets.at("stylesheets/animate.css")" rel="stylesheet">
+<link href="@routes.Assets.at("stylesheets/angular.treeview.css")" rel="stylesheet">
+<script>
+	(function() {
+		//angular module
+			
+		var myApp = angular.module('myApp', [ 'angularTreeview' ]);
+		myApp.directive('ngBlur', [ '$parse', function($parse) {
+			return function(scope, element, attr) {
+				var fn = $parse(attr['ngBlur']);
+				element.bind('blur', function(event) {
+					scope.$apply(function() {
+						fn(scope, {
+							$event : event
+						});
+					});
+				});
+			}
+		} ]);
+		myApp.directive('ngIf', function() {
+			return {
+				link : function(scope, element, attrs) {
+					if (scope.$eval(attrs.ngIf)) {
+						// remove '<div ng-if...></div>'
+						element.replaceWith(element.children())
+					} else {
+						element.replaceWith(' ')
+					}
+				}
+			}
+		});
+
+		//test controller
+
+		myApp.controller('myController',function($scope, $http) {
+			
+							$scope.login = function(username,password){
+								alert("click 'ok' to procceed");
+							}
+					
+							$scope.roleList = "";
+							$scope.menu = {};
+							$http.get('getTreeNodesSpecificToTenant').success(
+									function(response) {
+										console.log("response in getTreeNodesSpecificToTenant : "+response);
+										$scope.roleList = response;
+									});
+
+							$scope.snw = function() {
+								var date = new Date().getDate();
+								//alert(date);
+							};
+
+							$scope.gettype = function(typenode) {
+								$scope.typenode = typenode;
+								$scope.nodetypedata = "";
+								if ($scope.typenode == "nodeTypeTenant") {
+									$scope.nodetypedata = "nodeTypeTenant";
+								}
+								if ($scope.typenode == "nodeTypeSite") {
+									$scope.nodetypedata = "nodeTypeSite";
+								}
+								if ($scope.typenode == "nodeTypeFeatureGroup") {
+									$scope.nodetypedata = "nodeTypeFeatureGroup";
+								}
+								if ($scope.typenode == "nodeTypeFeature") {
+									$scope.nodetypedata = "nodeTypeFeature";
+								}
+								//alert(nodetypedata);
+								return $scope.nodetypedata;
+							};
+
+							//add nodes ajax
+							$scope.addnodes = function() {
+								var nodearray = new Array();
+								var pnId = document
+										.getElementsByName("parentNodeId")[0].value;
+
+								var nodearr = document
+										.getElementsByName("tenant[]");
+								for (var i = 0; i < nodearr.length; i++) {
+									console.log("inside for loop");
+									nodearray
+											.push(document
+													.getElementsByName("tenant[]")[i].value);
+
+								}
+								var jarr = JSON.stringify(nodearray);
+								var data3 = null;
+								$scope.abc = $scope.nodetypedata;
+								//alert($scope.abc);
+								if ($scope.abc == "nodeTypeTenant") {
+									//	alert(2);
+
+									data3 = {
+										"parentNodeId" : pnId,
+										"nodeArray" : jarr,
+										"nodeTypeTenant" : "Add Tenants"
+									};
+									//	alert(1);
+
+									var data = JSON.stringify(data3);
+									$http.post("addTenantNode", data).success(
+											function(response) {
+
+												//$("#sidemenu").load(location.href + " #sidemenu");
+												$scope.refreshside();
+
+												//	alert("inside tree node");
+												$scope.treeData = response;
+												$scope.hidebutton = true;
+
+											});
+
+								}
+								if ($scope.abc == "nodeTypeSite") {
+									data3 = {
+										"parentNodeId" : pnId,
+										"nodeArray" : jarr,
+										"nodeTypeSite" : "Add Sites"
+									};
+
+									var data = JSON.stringify(data3);
+									$http.post("addTenantNode", data).success(
+											function(response) {
+
+												//$("#sidemenu").load(location.href + " #sidemenu");
+												$scope.refreshside();
+
+												//	alert("inside tree node");
+												$scope.treeData = response;
+												$scope.hidebutton = true;
+
+											});
+
+								}
+								if ($scope.abc == "nodeTypeFeatureGroup") {
+									data3 = {
+										"parentNodeId" : pnId,
+										"nodeArray" : jarr,
+										"nodeTypeFeatureGroup" : "Add FeatureGroup"
+									};
+
+									var data = JSON.stringify(data3);
+									$http.post("addTenantNode", data).success(
+											function(response) {
+
+												//$("#sidemenu").load(location.href + " #sidemenu");
+												$scope.refreshside();
+
+												//	alert("inside tree node");
+												$scope.treeData = response;
+												$scope.hidebutton = true;
+
+											});
+
+								}
+								if ($scope.abc == "nodeTypeFeature") {
+									var data3 = {
+										"parentNodeId" : pnId,
+										"nodeArray" : jarr,
+										"nodeTypeFeature" : "Add Feature"
+									};
+
+									var data = JSON.stringify(data3);
+									$http.post("addTenantNode", data).success(
+											function(response) {
+
+												//$("#sidemenu").load(location.href + " #sidemenu");
+												$scope.refreshside();
+
+												//	alert("inside tree node");
+												$scope.treeData = response;
+												$scope.hidebutton = true;
+
+											});
+
+								}
+
+								console.log($scope.data3);
+
+								var data4 = $scope.data3;
+								/* var data3 = {}; */
+
+								var data = JSON.stringify(data4);
+								//console.log(data);
+
+							};
+
+							$scope.refreshside = function() {
+								//						$scope.ifnode = false;
+
+								$http.get('/getTreeNodes').success(
+										function(response) {
+											$scope.roleList = response;
+											//alert(response);
+										});
+							}
+
+							//addvendordiv dynamic
+
+							$scope.appendText = function() {
+								var myEl = angular.element(document
+										.querySelector('#divID'));
+								myEl
+										.append('<div class="form-group" style="width: 40%;"><label for="pwd"><font size="2">Vendor Name</font> <span style="color: red; font-size: 3">*</span> </label> <input type="text" id="vname" name="vname[]" class="form-control" style="height: 6%; width: 100%;"></div><div class="form-group" style="width: 40%;"><label for="pwd"><font size="2">VendorDescription</font> <span style="color: red; font-size: 3">*</span> </label><input type="text" id="vdesc" name="vdesc[]" class="form-control" style="height: 6%; width: 100%;"></div><div class="form-group" style="width: 40%;"><label for="pwd"><font size="2">Vendor Status</font> <span	style="color: red; font-size: 3">*</span> </label> <input type="checkbox" id="vstatus" name="vstatus[]" class="form-control" style="height: 6%; width: 100%;"></div><br><br> <div id="AddVendorservice"></div>  <br><br><div><a style="padding-left: 4%; font-size: 20; color: black" href="javascript:void(0);" ng-click="AddVendorservice()"> <label style="width: 100px" class="btn btn-primary">Add VendorService </label></a></div> <div id="divID1" class="form-group" style="width: 40%;">');
+							};
+
+							$scope.vendrservicefields = function() {
+
+								var vendserEl = angular.element(document
+										.querySelector('#divID1'));
+								vendserEl
+										.append('<div id="divID1" class="form-group" style="width: 40%;"><label for="pwd"><font size="2">Vendor Service</font> <span style="color: red; font-size: 3">*</span> </label> <select name="vendserv[]" style="height: 6%; width: 100%;" ng-model="vendserv"><option value="">--select--</option><option value="create">Create</option><option value="move">Move</option></select></div><div><input type="button" value="addVendService" ng-click="vendrservicefields()"></div>');
+							}
+
+							//add Standard service Feilds 
+
+							$scope.AddStandardservice = function() {
+								var myEl = angular.element(document
+										.querySelector('#AddStandardservice'));
+								myEl
+										.append('<div class="form-group" style="width: 40%;"><label for="pwd"><font size="2">Standard Service Name</font> <span style="color: red; font-size: 3">*</span> </label> <input type="text" id="standardService" name="standardService[]" class="form-control" style="height: 6%; width: 100%;"></div><div class="form-group" style="width: 40%;"><label for="pwd"><font size="2">Standard Route</font> <span style="color: red; font-size: 3">*</span> </label><input type="text" id="standardRoute" name="standardRoute[]" class="form-control" style="height: 6%; width: 100%;"></div><br><br>');
+
+							};
+
+							$scope.AddVendorservice = function() {
+								var myEl = angular.element(document
+										.querySelector('#AddVendorservice'));
+								myEl
+										.append('<div class="form-group" style="width: 40%;"><label for="pwd"><font size="2">Vendor Service Name</font> <span style="color: red; font-size: 3">*</span> </label> <input type="text" id="vendorService" name="vendorService[]" class="form-control" style="height: 6%; width: 100%;"></div><div class="form-group" style="width: 40%;"><label for="pwd"><font size="2">Vendor Route</font> <span style="color: red; font-size: 3">*</span> </label><input type="text" id="vendorRoute" name="vendorRoute[]" class="form-control" style="height: 6%; width: 100%;"></div><br><br>');
+
+							};
+
+							$scope.getvendname = function() {
+
+								var vend = document.getElementById("vname")[0].value;
+								//alert(vend);
+							};
+
+							//addfeatureConfig
+
+							$scope.submitFeaturePolicy = function(nodeId) {
+
+								$scope.featueconfiglist = "";
+
+								var featStatus = JSON.stringify(document
+										.getElementById("featStatus").checked);
+
+								//	alert(featStatus);
+								var name = document.getElementsByName('name')[0].value;
+								var version = document
+										.getElementsByName('version')[0].value;
+								var nodeId = document
+										.getElementsByName('nodeId')[0].value;
+								var stdstatus = JSON.stringify(document
+										.getElementById("stdstatus").checked);
+								var vnamelen = document
+										.getElementsByName('vname[]');
+								var data1 = [];
+
+								for (var vna = 0; vna < vnamelen.length; vna++) {
+									var vendnamearray = {};
+									vendnamearray.name = document
+											.getElementsByName("vname[]")[vna].value;
+									vendnamearray.description = document
+											.getElementsByName('vdesc[]')[vna].value;
+									vendnamearray.enabled = document
+											.getElementsByName("vstatus[]")[vna].checked;
+									data1.push(vendnamearray);
+								}
+								var vendnamedyn = JSON.stringify(data1);
+								var venddescdyn = JSON.stringify(data1);
+								var vendstatsdyn = JSON.stringify(data1);
+								//alert(data1);
+
+								var data = JSON.stringify({
+									"featStatus" : featStatus,
+									"name" : name,
+									"nodeId" : nodeId,
+									"version" : version,
+									"stdstatus" : stdstatus,
+									"vendorimplementation" : vendnamedyn
+								});
+
+								console.log("This is the datapassing as JSON"
+										+ data);
+
+								$scope.featueconfiglist = "";
+								$http
+										.post('addfeature', data)
+										.success(
+												function(response, status,
+														headers, config) {
+
+													var url = "getFeature/"
+															+ nodeId;
+													$scope.nodeId = nodeId;
+													$http
+															.get(url, response)
+															.success(
+																	function(
+																			response) {
+																		var x2js = new X2JS();
+																		try {
+																			var jsonObj = x2js
+																					.xml_str2json(response[0].configData);
+																			response[0]["configData"] = jsonObj;
+																		} catch (err) {
+																		}
+																		$scope.featueconfiglist = response;
+																		$scope.hideform = true;
+
+																	});
+
+												}).error(
+												function(response, status,
+														headers, config) {
+													$scope.error = response;
+												});
+							};
+
+							/*-----------*/
+							/*
+							 * update featureconfig
+							 */
+
+							$scope.changeFeaturStatus = function(version) {
+								var serviceStatus = document.getElementsByName('serviceStatus[]');
+								var featuteStatus=document.getElementById("featureStatus").checked;
+								var nodeid=document.getElementById("nodeidtoupdt").value;
+								var nodename=document.getElementById("nodenametoupdt").value;
+
+							
+								var data1 = JSON.stringify(serviceStatus);
+							 	var dataValue=[];
+							 	var feature={};
+								
+								var service = {}
+								for(var vna=0;vna<serviceStatus.length;vna++){
+									
+									var key=document.getElementsByName("serviceName[]")[vna].value;
+									service[key]=	document.getElementsByName("serviceStatus[]")[vna].checked;
+								}
+								dataValue.push(service);
+								var data1 = JSON.stringify(dataValue);
+								$scope.field = {};
+							/* 	var vnamelen = document
+								.getElementsByName('vname[]'); */
+							var data = JSON.stringify({
+									"isEnable" : featuteStatus,
+									"service" : dataValue,
+									"nodeid" : nodeid,
+									"nodename" : nodename,
+									"version":version
+								});
+ 
+
+								 $http
+										.post('changStatus', data, onclick)
+										.success(
+												function(response) {
+													var x2js = new X2JS();
+													try {
+														for (var i = 0; i < response.length; i++) {
+															try {
+																var jsonObj = x2js
+																		.xml_str2json(response[i].configData);
+
+																$scope.stdandardstatus = jsonObj.FeaturesServiceInfo.Features.Feature.Service;
+
+																
+															} catch (err) {
+															}
+														}
+													} catch (err) {
+													}
+
+													$scope.featueconfiglist = response;
+												}); 
+							};
+
+							/*------------*/
+							/*
+							 * addPermastore
+							 */
+
+							$scope.addpermastore = function() {
+								$scope.permastorefeilds = false;
+
+								delete $scope.permastorefeilds;
+								var configName = document
+										.getElementById("permaconfigName").value;
+								console.log(configName);
+
+								var dataType = document
+										.getElementById("dataType").value;
+								var BuilderType = document
+										.getElementById("BuilderType").value;
+								console.log(BuilderType);
+
+								var ConfigEnable = JSON
+										.stringify(document
+												.getElementById("ConfigEnable").checked);
+								console.log(ConfigEnable);
+								var EventName = "";
+								try {
+									EventName = document
+											.getElementById('EventName').value;
+								} catch (err) {
+
+								}
+								console.log("EventName " + EventName);
+
+								var configNodeId = document
+										.getElementById('configNodeId').value;
+								console.log("configNodeId " + configNodeId);
+
+								var featureName = document
+										.getElementById('featureName').value;
+								var inlineBuilderType = document
+										.getElementById('inlineBuilderType').value;
+								console.log("inlineBuilderType "
+										+ inlineBuilderType);
+
+								var jsonValue = document
+										.getElementById('jsonval').value;
+								console.log("jsonValue " + jsonValue);
+
+								var arr = JSON.stringify($('#EventType').val());
+								console.log(arr);
+
+								var data = JSON.stringify({
+									"configName" : configName,
+									"dataType" : dataType,
+									"BuilderType" : BuilderType,
+									"ConfigEnable" : ConfigEnable,
+									"EventName" : EventName,
+									"featureName" : featureName,
+									"inlineBuilderType" : inlineBuilderType,
+									'jsonval' : jsonValue,
+									"configNodeId" : configNodeId,
+									"EventType" : arr
+								});
+								console.log(data);
+								$http
+										.post('addPermastoreConfigData', data)
+										.success(
+												function(response, status,
+														headers) {
+
+													$scope.configlist1 = response;
+													//this is juz to test
+													$(form)
+															.fadeOut(
+																	800,
+																	function() {
+																		form
+																				.html()
+																				.fadeIn()
+																				.delay(
+																						2000);
+
+																	});
+													//upto here
+													$scope.hideform = true;
+												}).error(
+												function(response, status,
+														headers) {
+													$scope.error = response;
+												});
+								$scope.permastorefeilds = "";
+								$scope.permastorefeilds = null;
+								$scope.dynastoreLogDataList=null;
+								$scope.eventConfigDataList=null;
+								$scope.eventConfigDataList=null;
+
+							};
+
+							/*---------------*/
+							/*
+							 * JSON Validation
+							 */
+
+							$scope.validatejson = function() {
+
+								var datajson = document
+										.getElementsByName('jsonval')[0].value;
+								try {
+									//alert(datajson);
+									var jsonObject = JSON.parse(datajson); // verify that json is valid
+									console.log("Received valid Json");
+									//document.write("JSON Validated");
+									document
+											.getElementById("validationoutinvalid").innerHTML = "JSON Validated";
+									return jsonObject;
+								} catch (e) {
+									// document.write("Invalid JSON");
+									document
+											.getElementById("validationoutinvalid").innerHTML = "Invalid JSON";
+									console
+											.log("did not receive a valid Json: "
+													+ e)
+								}
+								return {};
+							};
+							/*---------------------*/
+
+							//change status of permastore configuration 
+							$scope.changeStatusOfPermaStore = function(config,
+									isenable, nodeId, nodename,version) {
+
+									var data = JSON.stringify({
+									"configName" : config,
+									"nodeid" : nodeId,
+									"isenable" : JSON.stringify(isenable),
+									"nodename" : nodename,
+									"version" : version
+								});
+								console.log("the data coming : "+data);
+								$http.post("changeStatusOfPermaStore", data)
+										.success(function(response) {
+
+											$scope.editresp = response;
+											console.log("$scope.editresp : "+$scope.editresp);
+
+										});
+
+							};
+
+							//get permastoreconfigdata by nodeid
+							$scope.permstoregetController = function(id, type) {
+								$scope.ifnode = false;
+
+								$scope.menu.node = false;
+								$scope.menu.policy = false;
+								$scope.menu.perma = true;
+								$scope.menu.feature = false;
+								$scope.menu.dyna = false;
+								$scope.menu.event = false;
+								$scope.menu.dynaConfig = false;
+								$scope.menu.dataContext = false;
+
+								var url = "getPermaStoreConfig/" + id;
+								$scope.configid = id;
+								$scope.permastoreType = type;
+								$http
+										.get(url)
+										.success(
+												function(response) {
+													var x2js = new X2JS();
+													try {
+														for (var i = 0; i < response.length; i++) {
+															try {
+																var jsonObj = x2js
+																		.xml_str2json(response[i].configData);
+																response[i]["type"] = jsonObj.PermaStoreConfigurations.PermaStoreConfiguration.DataType;
+																response[i]["configBuilder"] = jsonObj.PermaStoreConfigurations.PermaStoreConfiguration.ConfigurationBuilder._type;
+															} catch (err) {
+															}
+														}
+													} catch (err) {
+													}
+													//alert(JSON.stringify(response));
+													$scope.configlist = response;
+													//	alert(JSON.stringify(response));
+													$scope.featueconfiglist = null;
+													$scope.policyconfigdatalist = null;
+													$scope.dynastoreLogDataList=null;
+													$scope.dataContext=null;
+
+												});
+							};
+
+							//To deletPermaStore
+							$scope.deletePermaStore = function(config,
+									 nodeId, nodename,version) {
+
+									var data = JSON.stringify({
+									"configName" : config,
+									"nodeid" : nodeId,
+									"nodename" : nodename,
+									"version" : version
+								});
+								console.log(data);
+								$http.post("deletePermaStore", data)
+										.success(function(response) {
+
+											$scope.permstoregetController(nodeId,"");
+
+										});
+
+							};
+							
+							
+							$scope.featureConfigController = function(id,
+									featureType, tab) {
+								$scope.ifnode = false;
+
+								$scope.menu.node = false;
+								$scope.menu.policy = false;
+								$scope.menu.perma = false;
+								$scope.menu.feature = true;
+								$scope.menu.dyna = false;
+								$scope.menu.event = false;
+								$scope.menu.dynaConfig = false;
+								$scope.eventConfigDataList=null;
+								$scope.menu.dataContext=false;
+
+								var url = "getFeature/" + id;
+								$scope.stdandardstatus =null;
+								$scope.configid = id;
+								$scope.permastoreType = featureType;
+								$http
+										.get(url)
+										.success(
+												function(response) {
+													var x2js = new X2JS();
+													try {
+														for (var i = 0; i < response.length; i++) {
+															try {
+																var jsonObj = x2js
+																		.xml_str2json(response[i].configData);
+																//alert(JSON.stringify(jsonObj.FeaturesServiceInfo.Features.Feature.Service));
+																$scope.stdandardstatus = jsonObj.FeaturesServiceInfo.Features.Feature.Service;
+
+																
+															} catch (err) {
+															}
+														}
+													} catch (err) {
+													}
+
+													$scope.featueconfiglist = response;
+												});
+								$scope.featshow = true;
+								$scope.policyconfigdatalist = null;
+								$scope.dynastoreLogDataList=null
+								$scope.eventConfigDataList=null;
+								$scope.dataContext=null;
+
+								
+
+							};
+
+
+							$scope.displayEndpoints = function(jsondat,endpoint
+								) {
+								$scope.xmldata = jsondat;
+								$scope.endpointname=endpoint;
+								
+							};
+							
+							
+							$scope.vendstatusfunc = function() {
+								//	alert($scope.featueconfiglist);
+								//alert("hi");
+							};
+
+							/*--------------*/
+							$scope.displayConfidata = function(xmldata,
+									configdata) {
+								$scope.xmldata = xmldata;
+								$scope.configdata = configdata;
+							};
+							//get PolicyCongigdata by id and type
+
+							$scope.policyconfigdata = function(id, type, tab) {
+								$scope.ifnode = false;
+
+								$scope.menu.node = false;
+								$scope.menu.policy = true;
+								$scope.menu.perma = false;
+								$scope.menu.feature = false;
+								$scope.menu.dyna = false;
+								$scope.menu.event = false;
+								$scope.menu.dynaConfig = false;
+								$scope.menu.dataContext=false;
+								var url = "policyconfigdata/" + id;
+								$scope.configdataid = id;
+								$scope.policyConfigDataType = type;
+								$http
+										.get(url)
+										.success(
+												function(response) {
+													var x2js = new X2JS();
+													try {
+														for (var i = 0; i < response.length; i++) {
+															try {
+																var jsonObj = x2js
+																		.xml_str2json(response[i].configData);
+																response[0]["configData"] = jsonObj;
+															} catch (err) {
+															}
+														}
+													} catch (err) {
+													}
+													$scope.policyconfigdatalist = response;
+													//alert(JSON.stringify(response));
+													$scope.featueconfiglist = null;
+													$scope.configlist = null;
+													$scope.eventConfigDataList=null;
+													$scope.dataContext=null;
+
+
+												});
+							};
+
+							//change status of  policy
+							$scope.changeStatusOfPolicyConfig = function(configName,
+									isEnbled, nodeName, nodeId,version) {
+
+								var data = JSON.stringify({
+									"policyName" : configName,
+									"featureNodeId" : nodeId,
+									"isEnbled" : JSON.stringify(isEnbled),
+									"vendorname" : nodeName,
+									"version": version
+								});
+								console.log(data);
+								$http.post("changeStatusOfPolicyConfig", data)
+										.success(function(response) {
+
+											$scope.editresp = response;
+
+										});
+
+							};
+
+							$scope.displaypolicyConfidata = function(xmldata,
+									configdata) {
+								$scope.xmldata = xmldata;
+								$scope.configdata = configdata;
+							};
+							
+							/*-------------------*/
+							// get dynastore data
+							$scope.dynastoreconfig=function(nodeId){
+								$scope.ifnode = false;
+								$scope.menu.node = false;
+								$scope.menu.policy = false;
+								$scope.menu.perma = false;
+								$scope.menu.feature = false;
+								$scope.menu.dyna = false;
+								$scope.menu.dynaConfig = true;
+								$scope.menu.dataContext=false;
+
+								$scope.menu.event = false;
+								$scope.policyconfigdatalist = null;
+								$scope.featueconfiglist = null;
+								$scope.configlist = null;
+								$scope.eventConfigDataList=null;
+								$scope.dynastoreLogDataList=null;
+								$http.get('getDynaConfig/'+nodeId).success(
+										function(response) {
+											$scope.dynaStoreConfigDataList = response;
+
+												
+											
+										});
+							}
+							
+							
+							//Change status of dynastore configuration .....
+							
+							$scope.updateDynaStoreStatus = function(nodeId,nodeName,configName,status,version) {
+								
+								$http.get('changeStatusOfDynaStore/'+nodeId+'/'+nodeName+'/'+configName+'/'+status+'/'+version).success(
+										function(response) {
+											$scope.dynaStoreConfigDataList = response;
+
+											
+										});
+								$scope.policyconfigdatalist = null;
+								$scope.featueconfiglist = null;
+								$scope.configlist = null;
+								$scope.dynastoreLogDataList=null;
+								$scope.eventConfigDataList =null;
+								$scope.dataContext=null;
+
+							};
+							
+
+							$scope.deleteDynaStore = function(nodeId,nodeName,configName) {
+									
+									//alert(nodeId);
+									$http.get('deletDynaStore/'+nodeId+'/'+nodeName+'/'+configName).success(
+											function(response) {
+												$scope.dynaStoreConfigDataList = response;
+
+													
+												
+											});
+									$scope.policyconfigdatalist = null;
+									$scope.featueconfiglist = null;
+									$scope.configlist = null;
+									$scope.dynastoreLogDataList=null;
+									$scope.eventConfigDataList=null;
+									$scope.dataContext=null;
+
+								};
+							
+							
+							
+							
+
+							/*-------------------*/
+							// get dynastore data
+							$scope.dynastoredata=function(){
+								$scope.ifnode = false;
+								$scope.menu.node = false;
+								$scope.menu.policy = false;
+								$scope.menu.perma = false;
+								$scope.menu.feature = false;
+								$scope.menu.dyna = true;
+								$scope.menu.event = false;
+								$scope.menu.dynaConfig = false;
+								$scope.menu.dataContext=false;
+
+								$scope.policyconfigdatalist = null;
+								$scope.featueconfiglist = null;
+								$scope.configlist = null;
+								$scope.dynaStoreConfigDataList=null;
+								$scope.dataContext=null;
+
+							};
+							
+				
+							$scope.dynastoreLogData = function(siteNodeId,status,history) {
+								$http.get('getDynastoreLogData/'+siteNodeId+'/'+status+'/'+history).success(
+										function(response) {
+											$scope.dynastoreLogDataList = response;
+
+												
+												
+											
+										});
+								
+								$scope.policyconfigdatalist = null;
+								$scope.featueconfiglist = null;
+								$scope.configlist = null;
+								$scope.eventConfigDataList=null;
+								$scope.dataContext=null;
+
+								this.pagination($scope.dynastoreLogDataList);
+								this.firstPage();
+								
+								
+							};
+
+							// get event data
+						$scope.eventconfig=function(nodeId){
+							$scope.ifnode = false;
+
+							$scope.menu.node = false;
+							$scope.menu.policy = false;
+							$scope.menu.perma = false;
+							$scope.menu.feature = false;
+							$scope.menu.dyna = false;
+							$scope.menu.event = true;
+							$scope.menu.dynaConfig = false;
+							$scope.menu.dataContext=false;
+
+							$scope.policyconfigdatalist = null;
+							$scope.featueconfiglist = null;
+							$scope.configlist = null;
+							$scope.dynastoreLogDataList=null;
+							};
+							$scope.eventconfigdata = function(nodeId,type) {
+								
+								
+								$http.get('getEventConfig/'+nodeId+'/'+type).success(
+										function(response) {
+											$scope.eventConfigDataList = response;
+
+												
+											
+										});
+								$scope.policyconfigdatalist = null;
+								$scope.featueconfiglist = null;
+								$scope.configlist = null;
+								$scope.dynastoreLogDataList=null;
+								$scope.eventConfigDataList=null;
+								$scope.dataContext=null;
+
+
+							};
+
+						$scope.updateEventStatus = function(nodeId,nodeName,configName,status,eventType) {
+								
+								
+								$http.get('changeStatusOfEvent/'+nodeId+'/'+nodeName+'/'+configName+'/'+status+'/'+eventType).success(
+										function(response) {
+											$scope.eventConfigDataList = response;
+
+												
+											
+										});
+								$scope.policyconfigdatalist = null;
+								$scope.featueconfiglist = null;
+								$scope.configlist = null;
+								$scope.dynastoreLogDataList=null;
+							};
+							
+
+							$scope.deleteEvent = function(nodeId,nodeName,configName,eventType) {
+									
+									
+									$http.get('deletEvent/'+nodeId+'/'+nodeName+'/'+configName+'/'+eventType).success(
+											function(response) {
+												$scope.eventConfigDataList = response;
+
+													
+												
+											});
+									$scope.policyconfigdatalist = null;
+									$scope.featueconfiglist = null;
+									$scope.configlist = null;
+									$scope.dynastoreLogDataList=null;
+									$scope.eventConfigDataList=null;
+
+								};
+							
+								
+								$scope.getDataContext=function(nodeId){
+									$scope.dataContextval=null;
+									$scope.ifnode = false;
+									$scope.menu.node = false;
+									$scope.menu.policy = false;
+									$scope.menu.perma = false;
+									$scope.menu.feature = false;
+									$scope.menu.dyna = false;
+									$scope.menu.dynaConfig = false;
+									$scope.menu.dataContext=true;
+
+									$scope.menu.event = false;
+									$scope.policyconfigdatalist = null;
+									$scope.featueconfiglist = null;
+									$scope.configlist = null;
+									$scope.eventConfigDataList=null;
+									$scope.dynastoreLogDataList=null;
+									
+									$scope.singledata=false;
+									$scope.singlerefdata=false;
+									$scope.arrdata=false;
+									$scope.arrrefdata=false;
+
+									$http.get('getDataContextData/'+nodeId).success(
+											function(response) {
+												var x2js = new X2JS();
+
+												$scope.dataContext = response;
+											var jsonObj = x2js.xml_str2json(response[0].configData);
+
+											$scope.dataval=jsonObj.FeatureDataContext.DataContexts;
+											$scope.refDataval=jsonObj.FeatureDataContext.RefDataContexts;
+											alert($scope.dataval.length);
+											if(!$scope.dataval.length){
+												
+												$scope.singledata=true;
+												alert("sucess");
+												$scope.DataContexts=$scope.dataval;
+											}else{
+												$scope.arrdata=true;
+												$scope.DataContextsArr=$scope.dataval;
+
+											}
+											
+											if(!$scope.refDataval.length){
+												$scope.singlerefdata=true;
+
+												$scope.RefDataContexts=$scope.refDataval;
+											}else{
+												$scope.arrrefdata=true;
+
+												$scope.RefDataContextsarr=$scope.refDataval;
+
+											}
+											this.paginationForData($scope.DataContextsArr);
+											this.paginationForrefData($scope.RefDataContextsarr);
+
+											
+											this.firstPage();
+											});
+								};
+								
+								/* $scope.changeDataContextStatus=function(){
+									
+								};
+	 */
+							// get node data
+
+							$scope.nodedata = function(tab) {
+								$scope.ifnode = true;
+								$scope.menu.node = true;
+								$scope.menu.policy = false;
+								$scope.menu.perma = false;
+								$scope.menu.feature = false;
+								$scope.menu.dyna = false;
+								$scope.menu.event = false;
+								$scope.menu.dataContext=false;
+								$scope.policyconfigdatalist = null;
+								$scope.featueconfiglist = null;
+								$scope.dynastoreLogDataList=null;
+								$scope.configlist = null;
+								$scope.eventConfigDataList=null;
+								$scope.menu.dynaConfig = false;
+								$scope.eventConfigDataList=null;
+								$scope.dataContext=null;
+							};
+
+							
+							
+							
+							
+							
+							//pagination of table ----------------------------
+						
+						    $scope.paged = function (valLists,pageSize)
+							{
+   								var retVal = [];
+    								for (var i = 0; i < valLists.length; i++) {
+       										 if (i % pageSize === 0) {
+          										  retVal[Math.floor(i / pageSize)] = [valLists[i]];
+      										  } else {
+            										retVal[Math.floor(i / pageSize)].push(valLists[i]);
+      										  }
+  										  }
+   									 return retVal;
+							};
+				
+					
+   							 $scope.pagination = function (dynastoreLog) {
+      								  $scope.ItemsByPage = this.paged(dynastoreLog,5);     
+			
+    						};
+    						
+    						$scope.paginationForData = function (dataContext) {
+								  $scope.ItemsByPage = this.paged(dataContext,1);     
+		
+						};
+						
+						$scope.paginationForRefData = function (dataContext) {
+							  $scope.ItemsByPage = this.paged(dataContext,1);     
+	
+					};
+
+
+							    $scope.setPage = function () {
+							        $scope.currentPage = this.n;
+							    };
+
+							    $scope.firstPage = function () {
+							        $scope.currentPage = 0;
+							    };
+
+							    $scope.lastPage = function () {
+							        $scope.currentPage = $scope.ItemsByPage.length - 1;
+							       
+							    };
+
+							    $scope.range = function (input, total) {
+							        var ret = [];
+							        if (!total) {
+							            total = input;
+							            input = 0;
+							        }
+
+							        for (var i = input; i < total; i++) {
+							            if (i != 0 && i != total - 1) {
+							                ret.push(i);
+							            }
+							        }
+							        return ret;
+							    };
+							
+							
+							
+							//make vissible of permastoreconfigText fields 
+							$scope.isVissibaleConfig = false;
+							$scope.permastorefeilds = function() {
+								$scope.isVissibaleConfig = $scope.isVissibaleConfig ? false
+										: true;
+								$scope.isVissibaleFeatureConfig = false;
+							};
+							$scope.isVissibaleFeatureConfig = false;
+							$scope.featurefeilds = function() {
+								$scope.isVissibaleFeatureConfig = $scope.isVissibaleFeatureConfig ? false
+										: true;
+								$scope.isVissibaleConfig = false;
+							};
+							
+							$scope.logout=function(){
+								$scope.dataContextval=null;
+								$scope.ifnode = false;
+								$scope.menu.node = false;
+								$scope.menu.policy = false;
+								$scope.menu.perma = false;
+								$scope.menu.feature = false;
+								$scope.menu.dyna = false;
+								$scope.menu.dynaConfig = false;
+								$scope.menu.dataContext=false;
+
+								$scope.menu.event = false;
+								$scope.policyconfigdatalist = null;
+								$scope.featueconfiglist = null;
+								$scope.configlist = null;
+								$scope.eventConfigDataList=null;
+								$scope.dynastoreLogDataList=null;
+								
+								$scope.singledata=false;
+								$scope.singlerefdata=false;
+								$scope.arrdata=false;
+								$scope.arrrefdata=false;
+							
+							$http.get('logout').success(
+									function(response) {
+										console.log("response in logout : "+response);
+										
+									});
+							};
+						});
+	})();
+	
+</script>
+<style type="text/css">
+.divconfig {
+	height: 96%;
+	width: 96%;
+	overflow-x: scroll;
+	overflow-y: scroll;
+	padding-bottom: 10px;
+	border: 3px solid black;
+	"
+}
+</style>
+
+</head>
+<body>
+<!-- treeData:   @treeData <input ng-model="tenantData" value=@treeData> -->
+	<div id="mydashdiv">
+
+		<div ng-controller="myController" ng-init="data= 'true'"
+			style="overflow: auto;">
+
+
+
+
+			<div class="header">
+				<div class="left">
+					<ul class="menu">
+						<li><img src="http://www.getusroi.com/images/getusROI_04.jpg"
+							class="logoimg"></li>
+						<li><a href="#" class="logo">GEtUs ROI LLC</a></li>
+					</ul>
+				</div>
+			</div>
+			
+			<!-- MyCode :: Alok -->
+			<!-- <div class="body" style="height: 90%; width: 20%; overflow-x: auto;">
+				<form name="signupForm" action="login" method="post" novalidate>
+					<div>
+						<label for="tenant">Username</label> <input name="tenantid"
+							class="form-control" type="text" id="tenantid"
+							placeholder="TenantId" ng-model="tenantid">
+					</div>
+					<div>
+						<label for="password">Password</label> <input name="password"
+							class="form-control" type="password" id="password"
+							placeholder="Password" ng-model="password">
+
+					</div>
+					<button type="submit" class="btn btn-primary">Go</button>
+				</form>
+			</div> -->
+
+			<div class="body" style="width: 100%; overflow: auto"
+				ng-init="data1 = 'false' ">
+				<div class="sidemenu" id="sidemenu"
+					style="height: 90%; width: 20%; overflow-x: auto;"
+					data-angular-treeview="true" data-tree-id="tree"
+					data-tree-model="roleList" data-node-id="nodeId"
+					data-node-label="nodeName" data-node-children="children"></div>
+				<div class="animated fadeInRight">
+					<div class="pagecontent" id="pagecontent"
+						style="height: 90%; width: 78%; overflow: auto;">
+						<div class="navtabscustom">
+							<ul class="nav nav-tabs nav-justified"
+								style="font-family: sans-serif; font-size: 13;">
+								<li ng-class="{active:menu.node}" ng-click="nodedata('node')"><a
+									href="#"><b>Node</b></a></li>
+								<li ng-class="{active:menu.policy}"><a href="#"
+									ng-click="policyconfigdata(tree.currentNode.nodeId,'Policy','Policy')"><b>Policy</b></a></li>
+								<li ng-class="{active:menu.perma}"><a href="#"
+									ng-click="permstoregetController(tree.currentNode.nodeId,'permastore','perma')"><b>PermaStoreData</b></a></li>
+								<li ng-class="{active:menu.dynaConfig}"><a href="#"
+									ng-click="dynastoreconfig(tree.currentNode.nodeId)"><b>DynaStore</b></a></li>
+								<li ng-class="{active:menu.event}"><a href="#"
+									ng-click="eventconfig()"><b>Events</b></a></li>
+
+								<li ng-class="{active:menu.feature}"><a href="#"
+									ng-click="featureConfigController(tree.currentNode.nodeId,'feature','feature')"><b>Feature</b></a></li>
+								<!-- Mycode -->
+								<!-- <li ng-class="{active:menu.feature}"><a href="#"
+									ng-click="pipelineDataController(tree.currentNode.nodeId,'pipeline','pipeline')"><b>PipeLine</b></a></li> -->	
+							<li ng-class="{active:menu.dyna}"><a href="#"
+									ng-click="dynastoredata()"><b>DynaStore Audit</b></a></li>
+										<li ng-class="{active:menu.dataContext}"><a href="#"
+									ng-click="getDataContext(tree.currentNode.nodeId)"><b>Data Context</b></a></li>
+									<li ng-class="{active:menu.logout}"><a href="/#"
+									ng-click="logout()"><b>Logout</b></a></li>
+							</ul>
+						</div>
+						
+						<div
+							style="margin: 10px 0 30px 0; padding: 10px; background-color: #585858; border-radius: 5px; font: 12px sans-serif;">
+							<font color="white"> <span class="span-tab">Selected
+									Node ID : <b>{{tree.currentNode.nodeId}}</b>
+							</span> <span class="span-tab">Selected Node Name : <b>{{tree.currentNode.nodeName}}</b></span>
+								<span class="span-tab">Selected Node Type : <b>{{tree.currentNode.type}}</b></span>
+							<span class="span-tab">Version : <b>{{tree.currentNode.version}}</b></span>
+								
+								<span class="span-tab">{{tree.length}}</span>
+							</font>
+							<!-- 	<button ng-click="vendstatusArray()">Date</button> -->
+						</div>
+
+						<!-- <div>{{vendservicelist._name}}</div> -->
+						
+						
+					<!--to display dynaStoreConfig Data   -->
+
+
+
+						<div ng-show="menu.dynaConfig && dynaStoreConfigDataList.length>0">
+								<table ng-table="vm.tableParams"
+									style="font-size: 13px; font-family: sans-serif;"
+									class="table table-hover">
+									<tr>
+										<th>configDataId</th>
+
+										<th>DynStoreConfigName</th>
+										<th>IsEnabled</th>
+										<th>CreatedDTM</th>
+											<th>ConfigDataLink</th>
+											<th>Edit</th>
+											<th>Delete</th>
+
+
+									</tr>
+									<tr ng-repeat="dynaStoreConfig in dynaStoreConfigDataList">
+
+										<td>{{dynaStoreConfig.nodeDataId}}</td>
+										<td>{{dynaStoreConfig.configName}}</td>
+										<td><input type="checkbox" ng-model="dynaStoreConfig.enabled" ></td>
+										<td>{{dynaStoreConfig.createdDTM}}</td>
+									
+										<td><a href="#" data-toggle="modal"
+											ng-click="displaypolicyConfidata(dynaStoreConfig.configData)"
+											data-target="#myModal">click here ...</a></td>
+											<td><a href="#" ng-click="updateDynaStoreStatus(tree.currentNode.nodeId ,tree.currentNode.nodeName,dynaStoreConfig.configName,dynaStoreConfig.enabled,tree.currentNode.version)" class="btn btn-primary btn-sm"> Update</a></td>
+											<td><a
+												href="#" ng-click="deleteDynaStore(tree.currentNode.nodeId ,tree.currentNode.nodeName,dynaStoreConfig.configName)"
+												class="btn btn-primary btn-sm"> Delete
+
+											</a></td>
+									<tr>
+								</table>
+						</div>
+
+
+
+						<!---------------------To display DynaStoreLog Data   ------------------>
+
+
+
+						<div align="center" ng-show="menu.dyna">
+							Event Type <select name="status" ng-model="status"
+								style="height: 5%; width: 20%" required="required">
+
+								<option value="both">Both</option>
+								<option value="Opened">Opened</option>
+								<option value="Closed">Closed</option>
+
+							</select> History <select name="history" ng-model="history"
+								style="height: 5%; width: 20%" required="required">
+
+								<option value="all">All</option>
+								<option value="5">Last 5 Days</option>
+								<option value="10">Last 10 Days</option>
+								<option value="20">Last 20 Days</option>
+
+							</select> <br> <br> <input type="submit" value="Search"
+								ng-click='dynastoreLogData(tree.currentNode.nodeId,status,history)'
+								style="height: 5%; width: 10%">
+
+						</div>
+						<br>
+						
+						<div ng-show="dynastoreLogDataList.length > 0"
+							class="animated fadeInDown">
+							
+							<div >
+								<table ng-table="vm.tableParams"
+									style="font-size: 13px; font-family: sans-serif;"
+									class="table table-hover">
+									<tr>
+										<th>SiteID</th>
+
+										<th>Session ID</th>
+										<th>Status</th>
+										<th>OpenedDTM</th>
+										<th>ClosedDTM</th>
+										<th>info</th>
+
+
+									</tr>
+									<tr ng-repeat="dynaStorelog in ItemsByPage[currentPage]">
+
+										<td>{{dynaStorelog.siteId}}</td>
+										<td>{{dynaStorelog.sessionId}}</td>
+										<td>{{dynaStorelog.status}}</td>
+										<td>{{dynaStorelog.opendDTM}}</td>
+										<td>{{dynaStorelog.closedDTM}}</td>
+										<td><a href="#" data-toggle="modal"
+											ng-click="displaypolicyConfidata(dynaStorelog.info)"
+											data-target="#myModal">click here ...</a></td>
+									<tr>
+								</table>
+								<ul class="pagination pagination-sm">
+									<li ng-class="{active:0}"><a href="#"
+										ng-click="firstPage()">First</a></li>
+									<li ng-repeat="n in range(ItemsByPage.length)"><a href="#"
+										ng-click="setPage()" ng-bind="n+1">1</a></li>
+									<li><a href="#" ng-click="lastPage()">Last</a></li>
+								</ul>
+
+							</div>
+
+						</div>
+<!--------------------event Config table ----------------------------  -->
+
+
+
+						<div align="center" ng-show="menu.event">
+							Event Type <select name="status" ng-model="eventType"
+								style="height: 5%; width: 20%" required="required">
+
+								<option value="Event">Event</option>
+								<option value="DispatchChanel">DispatchChanel</option>
+								<option value="SystemEvent">SystemEvent</option>
+								<option value="EventSubscription">EventSubscription</option>
+
+							</select> 
+							 <br> <br> <input type="submit" value="Search"
+								ng-click='eventconfigdata(tree.currentNode.nodeId,eventType)'
+								style="height: 5%; width: 10%">
+
+						</div>
+						<br>
+						<br>
+			
+
+
+							<div ng-show="menu.event && eventConfigDataList.length>0">
+								<table ng-table="vm.tableParams"
+									style="font-size: 13px; font-family: sans-serif;"
+									class="table table-hover">
+									<tr>
+										<th>configDataId</th>
+
+										<th>EventConfigName</th>
+										<th>IsEnabled</th>
+											<th>EventType</th>
+										<th>CreatedDTM</th>
+											<th>ConfigDataLink</th>
+											<th>Edit</th>
+											<th>Delete</th>
+
+
+									</tr>
+									<tr ng-repeat="eventConfig in eventConfigDataList">
+
+										<td>{{eventConfig.nodeDataId}}</td>
+										<td>{{eventConfig.configName}}</td>
+										<td><input type="checkbox" ng-model="eventConfig.enabled" ng-checked="eventConfig.enabled" ></td>
+										<td>{{eventConfig.configType}}</td>
+										<td>{{eventConfig.createdDTM}}</td>
+									
+										<td><a href="#" data-toggle="modal"
+											ng-click="displaypolicyConfidata(eventConfig.configData)"
+											data-target="#myModal">click here ...</a></td>
+											<td><a href="#" ng-click="updateEventStatus(tree.currentNode.nodeId ,tree.currentNode.nodeName,eventConfig.configName,eventConfig.enabled,eventConfig.configType)" class="btn btn-primary btn-sm"> Update</a></td>
+											<td><a
+												href="#" ng-click="deleteEvent(tree.currentNode.nodeId ,tree.currentNode.nodeName,eventConfig.configName,eventConfig.configType)"
+												class="btn btn-primary btn-sm"> Delete
+
+											</a></td>
+									<tr>
+								</table>
+</div>
+<!--  Nodedata table starts here -->
+
+
+						<div class="container-bg">
+
+							<!-- 	<form action="addTenantNode" method="post"> -->
+							<form name="addTenantNode" ng-submit="addnodes()">
+								<table style="font-size: 13px; font-family: sans-serif;"
+									id="addedRows" class="table table-hover" show-filter="false"
+									ng-show="ifnode">
+
+									<tr>
+										<th>Node</th>
+										<th>Type</th>
+										<th>Node Id</th>
+										<!-- <th>Edit</th> -->
+										<th>Delete</th>
+									</tr>
+
+
+									<tr ng-repeat="children in tree.currentNode.children">
+										<td title="'nodeName'" filter="{ nodeName: 'text'}"
+											sortable="'nodeName'">{{children.nodeName}}</td>
+
+										<td title="'type'" filter="{ type: 'text'}" sortable="'type'">
+											{{children.type}}</td>
+										<td title="'nodeId'" filter="{ nodeId: 'number'}"
+											sortable="'nodeId'">{{children.nodeId}}</td>
+
+										<!-- <td><a href="editNode?id={{children.nodeId}}"
+									class="btn btn-primary btn-sm"> <span
+										class="glyphicon glyphicon-pencil"></span> Edit
+								</a></td> -->
+
+										<td>
+											<div ng-show="data1 == children.hasChildren">
+												<a
+													href="deleteNode?id={{children.nodeId}}&type={{children.type}}&name={{children.nodeName}}"
+													class="btn btn-primary btn-sm"> <span
+													class="glyphicon glyphicon-trash red" ng-disabled="false"></span>
+													Delete
+												</a>
+											</div>
+
+											<div ng-show="data == children.hasChildren ">
+												<a
+													href="deleteNode?id={{children.nodeId}}&type={{children.type}}&name={{children.nodeName}}"
+													class="btn btn-primary btn-sm" ng-disabled="true"> <span
+													class="glyphicon glyphicon-trash red"></span> Delete
+												</a>
+											</div>
+										</td>
+
+									</tr>
+
+								</table>
+								<input type="hidden" name="parentNodeId" id="parentNodeId"
+									value="{{tree.currentNode.nodeId}}">
+								<div ng-show="tree.currentNode.type == 'Root' && menu.node ">
+
+									<a style="padding-left: 4%; font-size: 20; color: black"
+										href="javascript:void(0);" onclick="addMoreRows(this.form);">
+										<label style="width: 100px" class="btn btn-primary">Add
+											Row </label>
+
+									</a> <input type="hidden" name="nodetypedata"
+										value="nodeTypeTenant"> <input name="nodeTypeTenant"
+										type="submit" id="find1" class="btn btn-primary"
+										style="width: 120px" value="Add Tenants"
+										ng-click="gettype('nodeTypeTenant')">
+								</div>
+
+								<div ng-show="tree.currentNode.type == 'tenant' && menu.node ">
+
+									<a style="padding-left: 4%; font-size: 20; color: black"
+										href="javascript:void(0);" onclick="addMoreRows(this.form);">
+										<label style="width: 100px" class="btn btn-primary">Add
+											Row </label>
+									</a><input type="hidden" name="nodetypedata" value="nodeTypeSite">
+									<input type="submit" name="nodeTypeSite" id="find2"
+										class="btn
+								btn-primary" style="width: 120px"
+										value="Add Sites" ng-click="gettype('nodeTypeSite')">
+								</div>
+
+								<div ng-show="tree.currentNode.type == 'site' && menu.node">
+									<a style="padding-left: 4%; font-size: 20; color: black"
+										href="javascript:void(0);" onclick="addMoreRows(this.form);">
+										<label style="width: 100px" class="btn btn-primary">Add
+											Row </label>
+									</a><input type="hidden" name="nodetypedata"
+										value="nodeTypeFeatureGroup"> <input type="submit"
+										name="nodeTypeFeatureGroup" id="find3"
+										class="btn
+								btn-primary" style="width: 120px"
+										value="Add FeatureGroup"
+										ng-click="gettype('nodeTypeFeatureGroup')">
+								</div>
+
+
+								<div
+									ng-show="tree.currentNode.type == 'feature_group'  && menu.node  ">
+									<a style="padding-left: 4%; font-size: 20; color: black"
+										href="javascript:void(0);" onclick="addMoreRows(this.form);">
+										<label style="width: 100px" class="btn btn-primary">Add
+											Row </label>
+									</a> <input type="hidden" name="nodetypedata"
+										value="nodeTypeFeature"> <input type="submit"
+										name="nodeTypeFeature" id="find4"
+										class="btn
+								btn-primary" style="width: 120px"
+										value="Add Feature" ng-click="gettype('nodeTypeFeature')">
+								</div>
+								<font color="red">@treeData</font>
+							</form>
+						</div>
+						<!-- <div ng-show="tree.currentNode.type == 'feature'"
+							class="animated fadeInDown"> -->
+
+							<div ng-show="configlist.length > 0">
+														 	<form name="getConfigDataToEdit" ng-submit="getConfigDataToEdit1()"> 
+
+								<div
+									ng-show=" configid == tree.currentNode.nodeId && permastoreType== 'permastore'"
+									class="animated fadeInDown">
+
+									<table style="font-size: 13px; font-family: sans-serif;"
+										id="addedRows" class="table table-hover" show-filter="false">
+										<tr>
+											<th>ConfigName</th>
+											<th>DataType</th>
+											<th>ConfigBuilder</th>
+											<th>ConfigDataId</th>
+											<th>LoadStatus</th>
+											<th>IsEnabled</th>
+											<th>CreatedDTM</th>
+											<th>ConfigDataLink</th>
+											<th>Edit</th>
+											<th>Delete</th>
+
+										</tr>
+										<tr ng-repeat="config in configlist">
+											<td>{{config.configName}}</td>
+											<input type="hidden" name="configName" id="configName"
+												value="{{config.configName}}">
+											<td>{{config.type}}</td>
+											<td>{{config.configBuilder}}</td>
+											<td>{{config.nodeDataId}}</td>
+											<td>{{config.configLoadStatus}}</td>
+											<td ng-show="config.enabled"><input type="checkbox"
+												name="configstatus" ng-model="isEnbled" id="configstatus[]"
+												class="form-control" ng-checked="true"> 
+												<input type="hidden" name="configstatus" id="configstatushidden" value="0"></td>
+											<td ng-show="!config.enabled"><input type="checkbox"
+												ng-model="isEnbled" name="configstatus" id="configstatus[]"
+												class="form-control" ng-checked="false"></td>
+											<!--  <td>{{config.enabled}}</td> -->
+											<td>{{config.createdDTM}}</td>
+												<!-- <td>{{config.configData}} </td> -->
+											<td><a href="#" data-toggle="modal"
+												ng-click="displayConfidata(config.configData)"
+												data-target="#myModal">click here ...</a></td>
+											<td><form name="getConfigDataToEdit"
+													ng-submit="changeStatusOfPermaStore(config.configName,isEnbled,tree.currentNode.nodeId,tree.currentNode.nodeName,tree.currentNode.version)">
+													<input type="hidden" name="nodeid" id="nodeid"
+														value="{{tree.currentNode.nodeId}}"> <input
+														type="hidden" name="configNodeDataId"
+														id="configNodeDataId" value="{{config.nodeDataId}}"><input
+														type="hidden" name="nodename" id="nodename"
+														value="{{tree.currentNode.nodeName}}"> <input
+														type="submit" class="btn btn-primary btn-sm"
+														value="Update">
+												</form></td>
+
+											<td><form name="getConfigDataToEdit"
+													ng-submit="deletePermaStore(config.configName,tree.currentNode.nodeId,tree.currentNode.nodeName,tree.currentNode.version)">
+													<input type="hidden" name="nodeid" id="nodeid"
+														value="{{tree.currentNode.nodeId}}"> <input
+														type="hidden" name="configNodeDataId"
+														id="configNodeDataId" value="{{config.nodeDataId}}"><input
+														type="hidden" name="nodename" id="nodename"
+														value="{{tree.currentNode.nodeName}}"> <input
+														type="submit" class="btn btn-primary btn-sm"
+														value="Delete">
+												</form></td>
+										<tr>
+									</table>
+
+								</div>
+
+							
+							</div>
+
+							<!-- configaration feilds starts  -->
+							
+							<!-- PolicyconfigData table display -->
+							<div ng-show="policyconfigdatalist.length > 0"
+								class="animated fadeInDown">
+								<div
+									ng-show=" configdataid == tree.currentNode.nodeId && policyConfigDataType== 'Policy'">
+									<table style="font-size: 13px; font-family: sans-serif;"
+										id="addedRows" class="table table-hover" show-filter="false">
+										<tr>
+											<th>PolicyName</th>
+											<!-- 	<th>DataType</th>
+									<th>ConfigBuilder</th> -->
+											<th>ConfigDataId</th>
+											<th>IsEnabled</th>
+											<th>CreatedDTM</th>
+											<th>PolicyDataLink</th>
+											<th>Update</th>
+										</tr>
+										<tr ng-repeat="config in policyconfigdatalist">
+
+											<td>{{config.configName}}</td>
+											<td>{{config.nodeDataId}}</td>
+											<!-- <td>{{config.enabled}}</td> -->
+											<td><div ng-show="config.enabled==true">
+													<!-- value="{{config.enabled}} -->
+													<input type="checkbox" ng-model="isEnabled"
+														name="policyEnable" id="policyEnable" ng-checked="true">
+												</div>
+												<div ng-show="!config.enabled">
+
+													<input type="checkbox" name="policyEnable"
+														id="policyEnable1" ng-model="isEnabled" ng-checked="false">
+												</div></td>
+
+											<!-- <td>{{config.enabled}}</td> -->
+											<td>{{config.createdDTM}}</td>
+											<!-- 	<td>{{config.configData}} -->
+											<td><a href="#" data-toggle="modal"
+												ng-click="displaypolicyConfidata(config.configData)"
+												data-target="#myModal">click here ...</a></td>
+											<td><form name="getpolicyDataToEdit"
+													ng-submit="changeStatusOfPolicyConfig(config.configName,isEnabled,tree.currentNode.nodeName, tree.currentNode.nodeId,tree.currentNode.version)">
+													<input type="hidden" name="nodeid" id="nodeid"
+														value="{{tree.currentNode.nodeId}}"> <input
+														type="hidden" name="configNodeDataId"
+														id="configNodeDataId" value="{{config.nodeDataId}}"><input
+														type="hidden" name="nodename" id="nodename"
+														value="{{tree.currentNode.nodeName}}"> <input
+														type="submit" class="btn btn-primary btn-sm"
+														value="Update">
+												</form></td>
+										<tr>
+									</table>
+
+								</div>
+
+							</div>
+
+
+
+
+							<!-- ================================== -->
+							<div class="animated fadeInDown">
+								<form name="changStatus"
+									ng-submit="changeFeaturStatus(tree.currentNode.version)">
+									<!-- 	<form action="changStatus" method="post"> -->
+									<div ng-show="featueconfiglist.length > 0"
+										class="animated fadeInDown">
+
+										<div
+											ng-show=" configid == tree.currentNode.nodeId && permastoreType== 'feature'  ">
+											<table
+												style="font-size: 13px; font-family: sans-serif; float: left;"
+												id="addedRows" class="table table-hover" show-filter="false">
+												<tr>
+													<th>FeatureDataId</th>
+													<th>FeatureName</th>
+													<th>FeatureStatus</th>
+													<th>Services</th>
+													
+												</tr>
+												<tr ng-repeat="config in featueconfiglist">
+													<td>{{config.nodeDataId}}</td>
+													<td>{{config.configName}}</td>
+													<td>	<input type="checkbox" id="featureStatus" name="config.enabled" ng-checked="config.enabled">
+													</td>
+													<!-- <td>{{stdstatus._enabled}}</td> -->
+													
+													<td ><table style="font-size: 13px; font-family: sans-serif; float: left;"
+												id="addedRows" class="table table-hover" show-filter="false">
+													<tr>
+													<th>ServiceName</th>
+													<th>ServiceStatus</th>
+													<th>VenderName</th>
+													<th>RestEndPoint</th>
+													<th>SoapEndPoint</th>
+					</tr>
+															<tr ng-repeat="slist in stdandardstatus">
+																<td>{{slist._name}}<input type="hidden" name="serviceName[]" value="{{slist._name}}"> </td>
+																	<td><input type="checkbox" name="serviceStatus[]" ng-model="slist._enabled"  ng-checked="slist._enabled=='true'"
+													></td>	<td>{{tree.currentNode.nodeName}}<input type="hidden" name="serviceVenderName[]" value="{{tree.currentNode.nodeName}}"></td>
+													
+<!-- 														<td>{{slist._vendorName}}<input type="hidden" name="serviceVenderName[]" value="{{slist._vendorName}}"></td>
+ -->														<td><a href="#" data-toggle="modal"
+											ng-click="displayEndpoints(slist.GenericRestEndpoint,'')"
+											data-target="#myModal">click here ...</a></td>
+														<td><a href="#" data-toggle="modal"
+											ng-click="displayEndpoints(slist.ConcreteSoapEndpoint,'')"
+											data-target="#myModal">click here ...</a></td>
+															</tr>
+															</table>
+														</td>
+													
+
+												</tr>
+											</table>
+
+
+											<input type="hidden" name="nodeidtoupdt" id="nodeidtoupdt"
+												value="{{tree.currentNode.nodeId}}"> <input
+												type="hidden" name="nodenametoupdt" id="nodenametoupdt"
+												value="{{tree.currentNode.nodeName}}"> <input
+												type="submit" class="btn btn-primary"  value="Update">
+										</div>
+									</div>
+								</form>
+							</div>
+
+
+
+
+
+
+
+
+
+	<!-- dataContext object  table display -->
+							<div ng-show="dataContext.length > 0"
+								class="animated fadeInDown">
+								
+								
+								<div
+									>
+									<table style="font-size: 13px; font-family: sans-serif;"
+										id="addedRows" class="table table-hover" show-filter="false">
+										<tr>
+											<th>DataContextName</th>
+											<!-- 	<th>DataType</th>
+									<th>ConfigBuilder</th> -->
+											<th>ConfigDataId</th>
+											<th>IsEnabled</th>
+											
+										</tr>
+										<tr ng-repeat="config in dataContext">
+
+											<td>{{config.configName}}</td>
+											<td>{{config.nodeDataId}}</td>
+											<!-- <td>{{config.enabled}}</td> -->
+											<td>
+													<!-- value="{{config.enabled}} -->
+													<input type="checkbox" ng-model="isEnabled"
+														name=""  ng-checked="config.enabled">
+								</td>
+
+											<!-- <td>{{config.enabled}}</td> -->
+											
+									
+										<tr>
+									</table>
+
+								</div>
+								<div ng-show="singledata" >
+								<table style="font-size: 10px; font-family: sans-serif; ;"
+											id="addedRows" class="table table-hover"	 show-filter="false">
+												<tr>
+													<th>Context Name </th>
+													<th> Data Contexts </th>
+													</tr>
+													<tr>
+													<td>
+													{{DataContexts._contextName}}
+													</td>
+													<td>
+													<table style="font-size: 10px; font-family: sans-serif; float: left;"
+												id="addedRows" class="table table-hover" show-filter="false">
+												<tr>
+													<th>DbRef Name</th>
+													<th>DB Type</th>
+													
+													</tr>
+													<tr ng-repeat="config in   DataContexts.DataContext">
+													<td>
+													{{config._dbBeanRefName}}
+													</td>
+													<td>
+													{{config._dbType}}
+													</td>
+													</tr>
+												</table>
+													<td>
+													</tr>
+												</table>
+											</div>
+												
+											<div ng-show="singlerefdata">
+											<table style="font-size: 13px; font-family: sans-serif; ;"
+											id="addedRows" class="table table-hover"	 show-filter="false">
+												<tr>
+													<th>Feature Group </th>
+													<th> Feature Name</th>
+													<th> Data Contexts </th>
+													
+													</tr>
+													<tr>
+													<td>
+													{{RefDataContexts._featureGroup}}
+													</td>
+													
+													<td>
+													{{RefDataContexts._featureName}}
+													
+													</td>
+													<td>
+													<table style="font-size: 10px; font-family: sans-serif; float: left;"
+												id="addedRows" class="table table-hover" show-filter="false">
+												<tr>
+													<th>DbRef Name</th>
+													<th>DB Type</th>
+													
+													</tr>
+													<tr ng-repeat="config in   RefDataContexts.RefDataContext">
+													<td>
+													{{config._dbBeanRefName}}
+													</td>
+													<td>
+													{{config._dbType}}
+													</td>
+													</tr>
+												</table>
+													<td>
+													</tr>
+												</table>
+											</div>
+											
+											<div ng-show="arrdata">
+											
+													<div  ng-repeat="context in DataContextsArr">
+								<table style="font-size: 10px; font-family: sans-serif; ;"
+											id="addedRows" class="table table-hover"	 show-filter="false">
+												<tr>
+													<th>Context Name :</th>
+													<th> Data Contexts </th>
+													</tr>
+													<tr>
+													<td>
+													{{context._contextName}}
+													</td>
+													<td>
+													<table style="font-size: 10px; font-family: sans-serif; float: left;"
+												id="addedRows" class="table table-hover" show-filter="false">
+												<tr>
+													<th>DbRef Name</th>
+													<th>DB Type</th>
+													
+													</tr>
+													<tr ng-repeat="config in   context.DataContext">
+													<td>
+													{{config._dbBeanRefName}}
+													</td>
+													<td>
+													{{config._dbType}}
+													</td>
+													</tr>
+												</table>
+													<td>
+													</tr>
+												</table>
+											</div>
+											<ul class="pagination pagination-sm">
+									<li ng-class="{active:0}"><a href="#"
+										ng-click="firstPage()">First</a></li>
+									<li ng-repeat="n in range(ItemsByPage.length)"><a href="#"
+										ng-click="setPage()" ng-bind="n+1">1</a></li>
+									<li><a href="#" ng-click="lastPage()">Last</a></li>
+								</ul>
+								</div>
+												
+												<div ng-show="arrrefdata">
+											<div  ng-repeat="config in arrrefdata">
+											<table style="font-size: 13px; font-family: sans-serif; ;"
+											id="addedRows" class="table table-hover"	 show-filter="false">
+												<tr>
+													<th>Feature Group </th>
+													<th> Feature Name</th>
+													<th> Data Contexts </th>
+													
+													</tr>
+													<tr>
+													<td>
+													{{config._featureGroup}}
+													</td>
+													
+													<td>
+													{{config._featureName}}
+													
+													</td>
+													<td>
+													<table style="font-size: 10px; font-family: sans-serif; float: left;"
+												id="addedRows" class="table table-hover" show-filter="false">
+												<tr>
+													<th>DbRef Name</th>
+													<th>DB Type</th>
+													
+													</tr>
+													<tr ng-repeat="config in   config.RefDataContext">
+													<td>
+													{{config._dbBeanRefName}}
+													</td>
+													<td>
+													{{config._dbType}}
+													</td>
+													</tr>
+												</table>
+													<td>
+													</tr>
+												</table>
+											</div>
+											<ul class="pagination pagination-sm">
+									<li ng-class="{active:0}"><a href="#"
+										ng-click="firstPage()">First</a></li>
+									<li ng-repeat="n in range(ItemsByPage.length)"><a href="#"
+										ng-click="setPage()" ng-bind="n+1">1</a></li>
+									<li><a href="#" ng-click="lastPage()">Last</a></li>
+								</ul>
+									</div>
+							</div>
+
+
+
+
+							<!-- ====================================== -->
+
+
+							<br>
+							<!-- To add the Permastoredata -->
+
+
+							<!-- <div ng-show="!menu.dyna">
+								<button class="btn btn-primary" ng-click="permastorefeilds()">Add
+									PermastoreData</button>
+								<button class="btn btn-primary" ng-click="featurefeilds()">Add
+									Feature</button>
+
+							</div>
+ -->
+
+
+							<div ng-show="isVissibaleConfig" class="animated fadeInUp">
+								<form name="addPermastoreConfigData" ng-submit="addpermastore()"
+									ng-hide="hideform">
+									<br>
+
+									<div class="container-bg" style="padding-left: 300px;">
+										<div>Fill PermastoreConfig details:</div>
+										<!-- <font style="color: green;"><p id="validationoutvalid"></p></font> -->
+										<div class="form-group" style="width: 40%;">
+											<label for="pwd"><font size="2">ConfigName:</font> <span
+												style="color: red; font-size: 3">*</span> </label> <input
+												type="text" id="permaconfigName" name="permaconfigName"
+												class="form-control" required>
+
+										</div>
+										<input type="hidden" name="configNodeId" id="configNodeId"
+											value=" {{tree.currentNode.nodeId}}"> <input
+											type="hidden" name="featureName" id="featureName"
+											value="{{tree.currentNode.nodeName}}">
+
+										<div class="form-group" style="width: 40%;">
+											<label for="pwd"><font size="2">DataType:</font> <span
+												style="color: red; font-size: 3">*</span> </label> <select
+												name="dataType" id="dataType"
+												style="height: 6%; width: 100%;" required>
+												<option value="">--select--</option>
+												<option value="List">List</option>
+												<option value="Map">Map</option>
+
+											</select>
+										</div>
+
+
+
+										<div class="form-group" style="width: 40%;">
+											<label><font size="2">ConfigurationBuilder
+													Type</font> <span style="color: red; font-size: 3">*</span> </label> <select
+												name="BuilderType" id="BuilderType"
+												style="height: 6%; width: 100%;" required
+												ng-model="BuilderType">
+												<option value="">--select--</option>
+												<option value="INLINE">INLINE</option>
+												<option value="CUSTOM">CUSTOM</option>
+												<option value="SQL">SQL</option>
+
+											</select>
+										</div>
+										<div class="form-group" style="width: 40%;"
+											ng-show="BuilderType=='INLINE'">
+											<label><font size="2">INLINE Builder Type</font> <span
+												style="color: red; font-size: 3">*</span> </label> <select
+												name="convtype" id="inlineBuilderType"
+												style="height: 6%; width: 100%;" ng-model="convtype">
+												<option value="">--select--</option>
+												<option value="JSON-TO-Map">JSON-To-MAP</option>
+											</select>
+										</div>
+
+										<div class="form-group" style="width: 40%;"
+											ng-show="convtype=='JSON-TO-Map' && BuilderType=='INLINE'">
+											<label><font size="2">Description(Json)</font> <span
+												style="color: red; font-size: 3">*</span> </label> <input
+												type="application/json" name="jsonval" id="jsonval"
+												class="form-control" ng-blur="validatejson()">
+											<button ng-click="validatejson()">Validate Json</button>
+											<font style="color: green;"><p id="validationoutvalid"></p></font>
+											<font style="color: blue;"><p
+													id="validationoutinvalid"></p> </font>
+										</div>
+
+
+										<div class="form-group" style="width: 40%;">
+
+											<label for="pwd"><font size="2">Permastore
+													Event Type</font> <span style="color: red; font-size: 3">*</span>
+											</label> <select id="EventType" name="EventType" size="5"
+												style="height: 6%; width: 100%;" required multiple>
+												<option value="">--select--</option>
+
+												<option value="DeletedEvent">DeletedEvent</option>
+
+												<option value="StatusChangedEvent">StatusChangedEvent</option>
+												<option value="EntryDeletedEvent">EntryDeletedEvent</option>
+												<option value="AddedEvent">AddedEvent</option>
+												<option value="UpdatedEvent">UpdatedEvent</option>
+
+											</select>
+
+										</div>
+
+										<div class="form-group" style="width: 40%;">
+											<label for="pwd"><font size="2">Config Enable</font>
+												<span style="color: red; font-size: 3">*</span> </label> <input
+												type="checkbox" name="ConfigEnable" id="ConfigEnable"
+												class="form-control">
+
+										</div>
+
+										<div class="form-group" style="width: 40%;">
+											<label for="pwd"><font size="2">Subscriber
+													EventName:</font> <span style="color: red; font-size: 3">*</span>
+											</label> <input type="text" id="EventName" name="EventName"
+												class="form-control">
+
+										</div>
+										<div class="form-group" style="width: 40%;">
+
+											<input type="submit" class="btn btn-primary" value="Submit">
+
+										</div>
+
+									</div>
+
+								</form>
+
+							</div>
+							<!-- this is feature Policy -->
+							<div ng-show="isVissibaleFeatureConfig" class="animated fadeInUp">
+								<form name="addfeature" ng-submit="submitFeaturePolicy()"
+									ng-hide="hideform">
+									<!-- <form action="addfeature" method="post"> -->
+
+									<br>
+									<div class="container-bg" style="padding-left: 300px;">
+										<!--  -->
+										<!-- =========== -->
+
+
+										<div class="form-group" style="width: 40%;">
+											<label for="pwd"><font size="2">Name</font> <span
+												style="color: red; font-size: 3">*</span> </label> <input
+												type="text" id="name" name="name" class="form-control"
+												required style="height: 6%; width: 100%;"
+												value="{{tree.currentNode.nodeName}}" readonly>
+
+										</div>
+
+										<div class="form-group" style="width: 40%;">
+											<label for="pwd"><font size="2">Feature Status</font>
+												<span style="color: red; font-size: 3"><input
+													type="checkbox" id="featStatus" name="featStatus"
+													class="form-control"></span> </label>
+
+										</div>
+										<input type="hidden" name="nodeId" id="nodeId"
+											value="{{tree.currentNode.nodeId}}">
+										<div class="form-group" style="width: 40%;">
+											<label for="pwd"><font size="2">Version</font> <span
+												style="color: red; font-size: 3">*</span> </label> <input
+												type="text" id="version" name="version" class="form-control"
+												required style="height: 6%; width: 100%;">
+
+										</div>
+										<!-- <div class="form-group" style="width: 40%;">
+									<label for="pwd"><font size="2">Module</font> <span
+										style="color: red; font-size: 3">*</span> </label> <input type="text"
+										id="module" name="module" class="form-control" required
+										style="height: 6%; width: 100%;">
+
+								</div> -->
+										<div class="form-group" style="width: 40%;">
+											<label for="pwd"><font size="2">Standard
+													Status</font> <span style="color: red; font-size: 3"><input
+													type="checkbox" id="stdstatus" name="stdstatus"
+													class="form-control"></span> </label>
+
+										</div>
+
+										<div id="AddStandardservice"></div>
+										<br> <br>
+										<div>
+											<a style="padding-left: 4%; font-size: 20; color: black"
+												href="javascript:void(0);" ng-click="AddStandardservice()">
+												<label style="width: 100px" class="btn btn-primary">Add
+													Standard Services </label>
+											</a>
+										</div>
+
+										<!-- <div class="form-group" style="width: 40%;">
+									<label for="pwd"><font size="2">Standard Route</font> <span
+										style="color: red; font-size: 3">*</span> </label> <input type="text"
+										id="stdroute" name="stdroute" class="form-control" required
+										style="height: 6%; width: 100%;">
+
+								</div> -->
+
+										<div id="divID"></div>
+										<br> <br>
+										<div>
+											<a style="padding-left: 4%; font-size: 20; color: black"
+												href="javascript:void(0);" ng-click="appendText()"> <label
+												style="width: 100px" class="btn btn-primary">Add
+													Vendors </label>
+											</a>
+										</div>
+										<!--  -->
+										<!-- ========== -->
+										<br> <br>
+										<div class="form-group" style="width: 40%;">
+											<input type="submit" class="btn btn-primary" value="Submit">
+										</div>
+
+									</div>
+
+								</form>
+
+						<!-- 	</div> -->
+							<!-- Feature fields ends here -->
+
+						</div>
+
+
+					</div>
+				</div>
+			</div>
+<!-- 
+			<div id="myModal" class="modal fade" role="dialog">
+				<div class="modal-dialog" style="width: 70%">
+
+					Modal content
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">{{configdata}}</h4>
+						</div>
+						<div class="modal-body">
+							<p>{{xmldata}}</p>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default"
+								data-dismiss="modal">Close</button>
+						</div>
+					</div>
+
+				</div>
+
+
+			</div>
+
+
+		</div> -->
+		<!-- Modal  display xml data of config data  in popup -->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog" style="width: 70%">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">{{configdata}}</h4>
+					</div>
+					<div class="modal-body">
+						<p>{{xmldata}}</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+			
+			
+		<!-- 	<!-- //To show endpoints -->
+			<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog" style="width: 70%">
+
+				Modal content
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title">EndPoints</h4>
+					</div>
+					<div class="modal-body">
+						<p>{{xmldata}}</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div> -->
+
+
+		</div>
+
+		<script src="@routes.Assets.at("javascripts/angular.treeview.js")"></script>
+		<!-- <script src="@routes.Assets.at("javascripts/angular.treeview.min.js")"></script> -->
+		<script
+			src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<script type="text/javascript">
+			function addMoreRows(frm) {
+				var rowCount = 1;
+				rowCount++;
+
+				var recRow = '<p id="rowCount'+rowCount+'"> <input name="tenant[]" type="text" style="width:50%;hieght:30%" required> <a href="javascript:void(0);" onclick="removeRow('
+						+ rowCount + ');">Delete</a></p>';
+				jQuery('#addedRows').append(recRow);
+			}
+
+			function removeRow(removeNum) {
+				jQuery('#rowCount' + removeNum).remove();
+			}
+		</script>
+		<script type="text/javascript">
+			function addVendorRows(frm) {
+				var rowCount = 1;
+				rowCount++;
+
+				var recRow = '<p id="rowCountVendor'+rowCount+'"> <input name="Vendor[]" type="text" style="width:50%;hieght:30%" required> <a href="javascript:void(0);" onclick="removeVendorRow('
+						+ rowCount + ');">Delete</a></p>';
+				jQuery('#addedVendorRows').append(recRow);
+			}
+
+			function removeVendorRow(removeNum) {
+				jQuery('#rowCountVendor' + removeNum).remove();
+			}
+		</script>
+
+	</div>
+</body>
+</html>
